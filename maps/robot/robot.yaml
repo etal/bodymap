@@ -1,0 +1,23 @@
+# Vocabulary definition for "robot" anatomy
+head: []
+trunk:
+    - abdomen
+    - torso
+arms:
+    left_arm:
+        - left_upper_arm
+        - left_lower_arm
+        - left_hand
+    right_arm:
+        - right_upper_arm
+        - right_lower_arm
+        - right_hand
+legs:
+    left_leg:
+        - left_upper_leg
+        - left_lower_leg
+        - left_foot
+    right_leg:
+        - right_upper_leg
+        - right_lower_leg
+        - right_foot

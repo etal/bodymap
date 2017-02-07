@@ -2,7 +2,10 @@
 """Colorize the SVG by modifying the XML directly, via ElementTree."""
 from __future__ import absolute_import, division, print_function
 import random
+import sys
 from xml.etree import ElementTree as ET
+
+import yaml
 
 
 class ShapeStyle(object):
@@ -67,25 +70,54 @@ def hex2rgb(hexstr):
     return tuple(int('0x' + cc, base=16) for cc in rgb_hex24)
 
 
+def all_labels(obj):
+    """Flatten a YAML/JSON-sourced dict/list object tree.
+
+    Returns all internal and external node labels in DFS pre-order.
+    """
+    def iter_dict(dc):
+        for k, v in dc.iteritems():
+            yield k
+            if isinstance(v, dict):
+                for key in iter_dict(v):
+                    yield key
+            else:
+                for val in v:
+                    yield val
+
+    assert isinstance(obj, dict)
+    for key in iter_dict(obj):
+        yield key
+
+
+def leaf_labels(obj):
+    """Get terminal node labels from a YAML/JSON-sourced dict/list object tree.
+
+    Returns only terminal node labels in DFS order.
+    """
+    def iter_dict(dc):
+        for k, v in dc.iteritems():
+            if not v:
+                yield k
+            elif isinstance(v, dict):
+                for key in iter_dict(v):
+                    yield key
+            else:
+                for val in v:
+                    yield val
+
+    assert isinstance(obj, dict)
+    for key in iter_dict(obj):
+        yield key
+
+
+
 if __name__ == '__main__':
-    # Dummy ontology for robot anatomy
-    labels = {
-        "head",
-        "torso",
-        "left_upper_arm",
-        "left_lower_arm",
-        "abdomen",
-        "left_upper_leg",
-        "left_lower_leg",
-        "left_hand",
-        "left_foot",
-        "right_upper_leg",
-        "right_lower_leg",
-        "right_foot",
-        "right_upper_arm",
-        "right_lower_arm",
-        "right_hand",
-    }
+    # Take region names from the vocabulary definition file
+    with open("maps/robot/robot.yaml") as f:
+        vocab_tree = yaml.load(f)
+    labels = set(leaf_labels(vocab_tree))
+    print(labels, file=sys.stderr)
 
     # Load the SVG as an XML tree
     tree = ET.ElementTree(file="maps/robot/robot.plain.svg")
@@ -98,3 +130,4 @@ if __name__ == '__main__':
 
     # Serialize the XML back to an SVG file
     tree.write("robot-randheat.svg")
+    print("Wrote", "robot-randheat.svg", file=sys.stderr)
