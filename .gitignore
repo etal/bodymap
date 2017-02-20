@@ -1,0 +1,15 @@
+*.bak
+*.diff
+*.orig
+*.patch
+*.pyc
+*.pyo
+*.rej
+*.swp
+*~
+.DS_Store
+.RData
+.Rhistory
+.coverage
+coverage.xml
+tags
